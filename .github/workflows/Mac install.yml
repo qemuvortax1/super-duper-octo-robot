@@ -63,8 +63,7 @@ jobs:
           sed -i '63s#.*#  -drive id=MacHDD,if=none,file="/mnt/mac.qcow2",format=qcow2#' boot-macOS-headless.sh
           sed -i '69s#.*#  -vnc 0.0.0.0:0 -k en-us#' boot-macOS-headless.sh
           sudo chmod +x boot-macOS-headless.sh
-          nohup sudo ./boot-macOS-headless.sh > /dev/null 2>&1 &
-          sleep 1
+          nohup sudo ./boot-macOS-headless.sh > /dev/null 2>&1 && sleep 1
           echo "Mac running successfully
           
       - name: Start VNC + Show Tailscale Info
