@@ -10,7 +10,6 @@ jobs:
   setup-gui-runner:
     runs-on: ubuntu-latest
     env:
-      TAILSCALE_AUTHKEY: "tskey-auth-kT7FvP6cr711CNTRL-HmHJt9PVjQS36szGbHtnQS4pppnAjzBUQ"
       USERNAME: runner
       PASSWORD: runner
       TAILSCALE_HOSTNAME: gh-xfce-vnc-${{ github.run_id }}
@@ -27,7 +26,7 @@ jobs:
         run: |
           echo ">>> Installing Tailscale..."
           curl -fsSL https://tailscale.com/install.sh | sudo sh
-          sudo tailscale up --authkey "${TAILSCALE_AUTHKEY}" --hostname "${TAILSCALE_HOSTNAME}"
+          sudo tailscale up --authkey tskey-auth-kT7FvP6cr711CNTRL-HmHJt9PVjQS36szGbHtnQS4pppnAjzBUQ --hostname "${TAILSCALE_HOSTNAME}"
           
       - name: Install XFCE + VNC server
         run: |
