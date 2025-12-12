@@ -1,0 +1,87 @@
+name: Setup XFCE Runner + Tailscale + VNC
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup-gui-runner:
+    runs-on: ubuntu-latest
+    env:
+      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+      USERNAME: runner
+      PASSWORD: runner
+      TAILSCALE_HOSTNAME: gh-xfce-vnc-${{ github.run_id }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure runner user has sudo
+        run: |
+          echo "${USERNAME}:${PASSWORD}" | sudo chpasswd
+          echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/${USERNAME}
+          
+      - name: Install Tailscale
+        run: |
+          echo ">>> Installing Tailscale..."
+          curl -fsSL https://tailscale.com/install.sh | sudo sh
+          sudo tailscale up --authkey "${TAILSCALE_AUTHKEY}" --hostname "${TAILSCALE_HOSTNAME}"
+          
+      - name: Install XFCE + VNC server
+        run: |
+          echo ">>> Installing XFCE Desktop + VNC..."
+          sudo apt-get install qemu-system uml-utilities virt-manager git \
+            wget libguestfs-tools p7zip-full make dmg2img openssh-server tesseract-ocr \
+            xfce4 xfce4-terminal dbus-x11 xorg \
+            tigervnc-standalone-server tigervnc-common tigervnc-tools \
+            tesseract-ocr-eng genisoimage vim net-tools screen -y
+            
+          #run ssh server 
+          sudo systemctl enable ssh
+          sudo systemctl restart ssh
+          
+          # Configure VNC password for the runner
+          mkdir -p /home/${USERNAME}/.vnc
+          echo ${PASSWORD} | vncpasswd -f > /home/${USERNAME}/.vnc/passwd
+          chmod 600 /home/${USERNAME}/.vnc/passwd
+          chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.vnc
+
+          # Start XFCE when VNC launches
+          echo "startxfce4" > /home/${USERNAME}/.xsession
+          chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.xsession
+
+      - name: Install Tailscale
+        run: |
+          cd ~
+          git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
+          cd OSX-KVM
+          ./fetch-macOS-v2.py <<< "9"
+          dmg2img -i BaseSystem.dmg BaseSystem.img
+          sudo qemu-img create -f qcow2 /mnt/mac.qcow2 128G
+          sed -i '63s#.*#  -drive id=MacHDD,if=none,file="/mnt/mac.qcow2",format=qcow2#' boot-macOS-headless.sh
+          sed -i '69s#.*#  -vnc 0.0.0.0:0 -k en-us#' boot-macOS-headless.sh
+          sudo chmod +x boot-macOS-headless.sh
+          nohup sudo ./boot-macOS-headless.sh
+          
+      - name: Start VNC + Show Tailscale Info
+        run: |
+          echo ">>> Starting VNC server..."
+          # Run VNC on all interfaces (not only localhost)
+          sudo -u ${USERNAME} vncserver :1 -geometry 1280x800 -depth 24 -localhost no
+
+          # Get Tailscale IP
+          TAILSCALE_IP=$(tailscale ip -4 | head -n1)
+
+          echo "=== CONNECTION INFO ==="
+          echo "USERNAME: ${USERNAME}"
+          echo "PASSWORD: ${PASSWORD}"
+          echo ">>> Connect with:"
+          echo "    ssh -o StrictHostKeyChecking=no ${USERNAME}@${TAILSCALE_IP}"
+          echo
+          echo "Connect with any VNC client to:"
+          echo "    ${TAILSCALE_IP}:5901"
+          echo
+          echo ">>> Keeping runner alive..."
+          tail -f /dev/null
