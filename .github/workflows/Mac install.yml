@@ -10,7 +10,7 @@ jobs:
   setup-gui-runner:
     runs-on: ubuntu-latest
     env:
-      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+      TAILSCALE_AUTHKEY: tskey-auth-kT7FvP6cr711CNTRL-HmHJt9PVjQS36szGbHtnQS4pppnAjzBUQ
       USERNAME: runner
       PASSWORD: runner
       TAILSCALE_HOSTNAME: gh-xfce-vnc-${{ github.run_id }}
@@ -36,7 +36,7 @@ jobs:
             wget libguestfs-tools p7zip-full make dmg2img openssh-server tesseract-ocr \
             xfce4 xfce4-terminal dbus-x11 xorg \
             tigervnc-standalone-server tigervnc-common tigervnc-tools \
-            tesseract-ocr-eng genisoimage vim net-tools screen -y
+            tesseract-ocr-eng genisoimage vim net-tools screen -y > /dev/null 2>&1
             
           #run ssh server 
           sudo systemctl enable ssh
@@ -52,7 +52,7 @@ jobs:
           echo "startxfce4" > /home/${USERNAME}/.xsession
           chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.xsession
 
-      - name: Install Tailscale
+      - name: download Mac 
         run: |
           cd ~
           git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
@@ -63,7 +63,7 @@ jobs:
           sed -i '63s#.*#  -drive id=MacHDD,if=none,file="/mnt/mac.qcow2",format=qcow2#' boot-macOS-headless.sh
           sed -i '69s#.*#  -vnc 0.0.0.0:0 -k en-us#' boot-macOS-headless.sh
           sudo chmod +x boot-macOS-headless.sh
-          nohup sudo ./boot-macOS-headless.sh
+          nohup sudo ./boot-macOS-headless.sh > /dev/null 2>&1
           
       - name: Start VNC + Show Tailscale Info
         run: |
@@ -80,7 +80,10 @@ jobs:
           echo ">>> Connect with:"
           echo "    ssh -o StrictHostKeyChecking=no ${USERNAME}@${TAILSCALE_IP}"
           echo
-          echo "Connect with any VNC client to:"
+          echo "Connect with to mac:
+          echo "    ${TAILSCALE_IP}:5900"
+          echo
+          echo "Connect with to xfce:"
           echo "    ${TAILSCALE_IP}:5901"
           echo
           echo ">>> Keeping runner alive..."
