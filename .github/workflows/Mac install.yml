@@ -82,7 +82,7 @@ jobs:
           echo ">>> Connect with:"
           echo "    ssh -o StrictHostKeyChecking=no ${USERNAME}@${TAILSCALE_IP}"
           echo
-          echo "Connect with to mac:
+          echo "Connect with to mac:"
           echo "    ${TAILSCALE_IP}:5900"
           echo
           echo "Connect with to xfce:"
