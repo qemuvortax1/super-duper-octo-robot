@@ -65,7 +65,7 @@ jobs:
           sudo chmod +x boot-macOS-headless.sh
           sudo ./boot-macOS-headless.sh > /dev/null 2>&1 &
           sleep 5
-          echo "Mac running successfully
+          echo "Mac running successfully"
           
       - name: Start VNC + Show Tailscale Info
         run: |
