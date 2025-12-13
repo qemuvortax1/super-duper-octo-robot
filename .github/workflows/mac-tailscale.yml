@@ -32,11 +32,17 @@ jobs:
       - name: Configure and Activate VNC (Screen Sharing)
         run: |
           echo "Activating Screen Sharing service..."
-          # 1. Activate Remote Management, allow all users, and grant full privileges
+          # -----------------------------------------------------
+      # NEW STEP: Fix Black Screen Issue for Headless Runner
+      # -----------------------------------------------------
+      - name: Fix Black Screen by Creating Virtual Display Session
+        run: |
+          echo "Attempting to create a virtual display session..."
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/CGDisplayChangeShowHeadlessUI 1
+          osascript -e 'tell application "Finder" to set visible of process "Finder" to true'
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -allowAccessFor -allUsers -privs -all -restart -console
-          
-          # 2. Corrected command: Configure VNC password and enable legacy VNC access
-          # يتم استخدام مدخل vnc_password لتعيين كلمة المرور بشكل صحيح
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -restart -agent
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -clientopts -setvnclegacy -vnclegacy yes -setvncpw -vncpw "${{ inputs.vnc_password }}" -restart -console
 
       # -----------------------------------------------------
