@@ -1,16 +1,13 @@
-name: Setup Remote Access on macOS Runner
+name: Setup Remote Access on macOS Runner (Using Bore)
 
 on:
   workflow_dispatch:
     inputs:
-      tailscale_auth_key:
-        description: 'Tailscale Auth Key (Optional if already logged in)'
-        required: false
-        type: string
       vnc_password:
         description: 'VNC Password for Screen Sharing'
         required: true
         type: string
+      # تمت إزالة tailscale_auth_key لأنه لم يعد مطلوبًا
 
 jobs:
   setup-access:
@@ -21,20 +18,13 @@ jobs:
         uses: actions/checkout@v4
 
       # -----------------------------------------------------
-      # Step 1: Install and Configure Tailscale VPN
+      # Step 1: Install Bore Tunneling Tool
       # -----------------------------------------------------
-      - name: Install Tailscale on macOS
+      - name: Install Bore via Homebrew
         run: |
-          # Download and install the Tailscale app via Homebrew
-          brew install --cask tailscale
-          # تم إزالة الأمر الخاطئ لـ launchctl load. سيتم تفعيل الخدمة بواسطة tailscale up.
-
-      - name: Log in to Tailscale using Auth Key
-        # This step uses the provided input key for authentication
-        if: ${{ inputs.tailscale_auth_key != '' }}
-        run: |
-          # Start the Tailscale service and log the machine into your network
-          sudo tailscale up --authkey ${{ inputs.tailscale_auth_key }} --accept-routes
+          # Bore هو الأفضل تثبيته عبر Homebrew على macOS
+          brew install bore
+          echo "✅ Bore has been installed."
 
       # -----------------------------------------------------
       # Step 2: Enable Screen Sharing (VNC Server) via CLI
@@ -50,12 +40,29 @@ jobs:
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -clientopts -setvnclegacy -vnclegacy yes -setvncpw -vncpw "${{ inputs.vnc_password }}" -restart -console
 
       # -----------------------------------------------------
-      # Step 3: Display Connection Info (Optional)
+      # Step 3: Start Bore Tunnel and Display Connection Info
       # -----------------------------------------------------
-      - name: Get Tailscale IP address and Hostname
+      - name: Start Bore Tunnel for VNC (Port 5900)
         run: |
-          IP_ADDR=$(tailscale ip -4)
-          HOSTNAME=$(hostname)
+          echo "Starting Bore tunnel for VNC (port 5900)..."
+          # يتم تشغيل Bore في الخلفية باستخدام &
+          # المنفذ الافتراضي لـ Screen Sharing (VNC) هو 5900
+          # يرجى ملاحظة: Bore.pub هو خادم وسيط عام.
+          
+          # تشغيل Bore والتقاط معلومات المنفذ العام في متغير
+          BORE_OUTPUT=$(bore local 5900 --to bore.pub &)
+          
+          # انتظار قليل للتأكد من إنشاء النفق قبل التحقق من الإخراج
+          sleep 5
+          
+          # استخراج المنفذ العام من إخراج bore
+          PUBLIC_PORT=$(echo "$BORE_OUTPUT" | grep 'Public address:' | awk -F ':' '{print $3}')
+          
           echo "✅ VNC should now be active."
-          echo "🌐 You can connect using your Tailscale IP: $IP_ADDR"
-          echo "💻 Or by hostname: $HOSTNAME.ts.net"
+          echo "🌐 The Bore tunnel is open to bore.pub on port: $PUBLIC_PORT"
+          echo "🔑 To connect, use VNC client to access: bore.pub:$PUBLIC_PORT"
+          
+          # عرض إخراج bore الكامل للمساعدة في تصحيح الأخطاء
+          echo "--- Bore Output ---"
+          echo "$BORE_OUTPUT"
+          sleep 6796869
