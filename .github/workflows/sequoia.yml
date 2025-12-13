@@ -84,7 +84,7 @@ jobs:
             done
             wait $pid
           )
-          DOWNLOADED1=Sequoia_1
+          DOWNLOADED1=$(ls -t | head -n1)
           sudo mv "$DOWNLOADED1" "$FILE_PATH1"
           
           CACHE_FILE2="/tmp/badown_cache2.log"
@@ -110,7 +110,7 @@ jobs:
             done
             wait $pid
           )
-          DOWNLOADED2=Sequoia_2
+          DOWNLOADED2=$(ls -t | head -n1)
           sudo mv "$DOWNLOADED2" "$FILE_PATH2"
             
       - name: Extract macOS-Simple-KVM archive
