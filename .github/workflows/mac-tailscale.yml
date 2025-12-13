@@ -23,7 +23,7 @@ jobs:
       - name: Install Bore via Homebrew
         run: |
           # Bore هو الأفضل تثبيته عبر Homebrew على macOS
-          brew install bore
+          brew install bore-cli
           echo "✅ Bore has been installed."
 
       # -----------------------------------------------------
