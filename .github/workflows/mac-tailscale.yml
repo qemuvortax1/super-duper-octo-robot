@@ -23,7 +23,7 @@ jobs:
       - name: Install Bore via Homebrew
         run: |
           # Bore هو الأفضل تثبيته عبر Homebrew على macOS
-          brew install bore-cli
+          brew install bore
           echo "✅ Bore has been installed."
 
       # -----------------------------------------------------
@@ -45,24 +45,8 @@ jobs:
       - name: Start Bore Tunnel for VNC (Port 5900)
         run: |
           echo "Starting Bore tunnel for VNC (port 5900)..."
-          # يتم تشغيل Bore في الخلفية باستخدام &
-          # المنفذ الافتراضي لـ Screen Sharing (VNC) هو 5900
-          # يرجى ملاحظة: Bore.pub هو خادم وسيط عام.
-          
-          # تشغيل Bore والتقاط معلومات المنفذ العام في متغير
-          BORE_OUTPUT=$(bore local 5900 --to bore.pub &)
-          
-          # انتظار قليل للتأكد من إنشاء النفق قبل التحقق من الإخراج
-          sleep 5
-          
-          # استخراج المنفذ العام من إخراج bore
-          PUBLIC_PORT=$(echo "$BORE_OUTPUT" | grep 'Public address:' | awk -F ':' '{print $3}')
+          bore local 5900 --to bore.pub
           
           echo "✅ VNC should now be active."
           echo "🌐 The Bore tunnel is open to bore.pub on port: $PUBLIC_PORT"
           echo "🔑 To connect, use VNC client to access: bore.pub:$PUBLIC_PORT"
-          
-          # عرض إخراج bore الكامل للمساعدة في تصحيح الأخطاء
-          echo "--- Bore Output ---"
-          echo "$BORE_OUTPUT"
-          sleep 6796869
