@@ -123,7 +123,7 @@ jobs:
           cd /mnt
           sudo sh -c "cat Sequoia_* > mac.7z"
           sudo rm Sequoia_*
-          sudo 7z x mac.7z -o /mnt -y >/dev/null 2>&1
+          sudo 7z x mac.7z -o/mnt -y 
           sudo rm -f mac.7z
           ls -lh
           ls
