@@ -84,9 +84,12 @@ jobs:
             done
             wait $pid
           )
+          echo "moving the first part to "$FILE_PATH1" "
           DOWNLOADED1=$(ls -t | head -n1)
           sudo mv "$DOWNLOADED1" "$FILE_PATH1"
-          
+          echo "first one done"
+          echo 
+          echo "Using badown to download from: $SRC2"
           CACHE_FILE2="/tmp/badown_cache2.log"
           : > "$CACHE_FILE2"
           (
@@ -110,24 +113,24 @@ jobs:
             done
             wait $pid
           )
+          echo "moving the first part to "$FILE_PATH2" "
           DOWNLOADED2=$(ls -t | head -n1)
           sudo mv "$DOWNLOADED2" "$FILE_PATH2"
+          echo "second one done"
             
       - name: Extract macOS-Simple-KVM archive
         run: |
           cd /mnt
-          sudo cat Sequoia_* > mac.7z
+          sudo sh -c "cat Sequoia_* > mac.7z"
           sudo rm Sequoia_*
           sudo 7z x mac.7z -o /mnt -y >/dev/null 2>&1
           sudo rm -f mac.7z
           ls -lh
           ls
-          pwd
-          
           
       - name: Run basic.sh in background
         run: |
-
+          exit 1
 
       - name: Expose VNC Port (5900) with Tunnel
         if: ${{ github.event.inputs.connection_method == 'ngrok' || github.event.inputs.connection_method == 'bore' }}
