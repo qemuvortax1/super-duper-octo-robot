@@ -46,8 +46,10 @@ jobs:
       - name: Install QEMU and components
         run: |
           sudo apt-get update -qq > /dev/null 2>&1
-          sudo apt-get install -y -qq qemu-system-x86 ovmf novnc websockify wget curl unzip p7zip-full unrar-free tar python3-pip jq > /dev/null 2>&1
-          pip install internetarchive > /dev/null 2>&1
+          sudo apt-get install qemu-system uml-utilities virt-manager git \
+            wget libguestfs-tools p7zip-full make dmg2img tesseract-ocr \
+            tesseract-ocr-eng genisoimage vim net-tools screen -y > /dev/null 2>&1
+    
           git clone https://github.com/stck-lzm/badown ~/badown > /dev/null 2>&1
           chmod +x ~/badown/badown > /dev/null 2>&1
           sudo touch ~/badown/.badown.tmp > /dev/null 2>&1
@@ -56,8 +58,8 @@ jobs:
         env:
           SRC1: "https://www.mediafire.com/file/tty3yfyneu4evfi/Sequoia_0"
           SRC2: "https://www.mediafire.com/file/x8h1netiy9ypifk/Sequoia_1"
-          FILE_PATH1: "/mnt/Sequoia_1"
-          FILE_PATH2: "/mnt/Sequoia_2"
+          FILE_PATH1: "/mnt/Sequoia_0"
+          FILE_PATH2: "/mnt/Sequoia_1"
         run: |
           echo "Using badown to download from: $SRC1"
           cd ~/badown
