@@ -133,10 +133,13 @@ jobs:
           cd ~
           git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
           cd OSX-KVM
-          sudo rm boot-macOS-headless.sh
-          sudo wget https://gitlab.com/MR.English2008/Mega_Gen/-/raw/main/boot-macOS-headless.sh
+          ./fetch-macOS-v2.py <<< "1" > /dev/null 2>&1
+          dmg2img -i BaseSystem.dmg BaseSystem.img
+          sed -i '63s#.*#  -drive id=MacHDD,if=none,file="/mnt/mac.qcow2",format=qcow2#' boot-macOS-headless.sh
+          sed -i '69s#.*#  -vnc 0.0.0.0:0 -k en-us#' boot-macOS-headless.sh
           sudo chmod +x boot-macOS-headless.sh
-          sudo ./boot-macOS-headless.sh &
+          sudo echo 1 | sudo tee -a /sys/module/kvm/parameters/ignore_msrs
+          sudo ./boot-macOS-headless.sh > /dev/null 2>&1 &
           sleep 5
           echo "Mac is running successfully"
           
