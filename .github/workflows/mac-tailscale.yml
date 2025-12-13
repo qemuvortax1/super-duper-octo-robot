@@ -1,0 +1,61 @@
+name: Setup Remote Access on macOS Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      tailscale_auth_key:
+        description: 'Tailscale Auth Key (Optional if already logged in)'
+        required: false
+        type: string
+
+jobs:
+  setup-access:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------
+      # Step 1: Install and Configure Tailscale VPN
+      # -----------------------------------------------------
+      - name: Install Tailscale on macOS
+        run: |
+          # Download and install the Tailscale app via Homebrew or direct install
+          brew install --cask tailscale
+          # Ensure the Tailscale service is running
+          sudo launchctl load /Library/LaunchDaemons/com.tailscale.ipn.plist
+        # Note: 'brew install' requires Homebrew to be pre-installed on your self-hosted runner.
+
+      - name: Log in to Tailscale using Auth Key
+        # This step uses a secret key for authentication
+        if: ${{ inputs.tailscale_auth_key != '' }}
+        run: |
+          # Use the provided auth key to log the machine into your Tailscale network
+          sudo tailscale up --authkey ${{ inputs.tailscale_auth_key }} --accept-routes
+        env:
+          # Best practice: pass the auth key as a secret in GitHub
+          TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+
+      # -----------------------------------------------------
+      # Step 2: Enable Screen Sharing (VNC Server) via CLI
+      # -----------------------------------------------------
+      - name: Configure and Activate VNC (Screen Sharing)
+        run: |
+          echo "Activating Screen Sharing service..."
+          # Activate the service, allow all users access, and restart it
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -allowAccessFor -allUsers -privs -all -restart -console
+          
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -vnclegacy -on -clientopts -setvnclegacy -clientopt1 "YourVncPassword" -restart -console
+
+      # -----------------------------------------------------
+      # Step 3: Display Connection Info (Optional)
+      # -----------------------------------------------------
+      - name: Get Tailscale IP address and Hostname
+        run: |
+          IP_ADDR=$(tailscale ip -4)
+          HOSTNAME=$(hostname)
+          echo "✅ VNC should now be active."
+          echo "🌐 You can connect using your Tailscale IP: $IP_ADDR"
+          echo "💻 Or by hostname: $HOSTNAME.ts.net"
+          
