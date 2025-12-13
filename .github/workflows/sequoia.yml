@@ -134,8 +134,7 @@ jobs:
           sudo rm boot-macOS-headless.sh
           sudo wget https://gitlab.com/MR.English2008/Mega_Gen/-/raw/main/boot-macOS-headless.sh
           sudo chmod +x boot-macOS-headless.sh
-          sudo echo 1 | sudo tee -a /sys/module/kvm/parameters/ignore_msrs
-          sudo ./boot-macOS-headless.sh > /dev/null 2>&1 &
+          sudo ./boot-macOS-headless.sh &
           sleep 5
           echo "Mac is running successfully"
           
