@@ -123,15 +123,22 @@ jobs:
           cd /mnt
           sudo sh -c "cat Sequoia_* > mac.7z"
           sudo rm Sequoia_*
-          sudo 7z x mac.7z -o/mnt -y 
+          sudo 7z x mac.7z -o /mnt -y >/dev/null 2>&1
           sudo rm -f mac.7z
-          ls -lh
-          ls
           
       - name: Run basic.sh in background
         run: |
-          exit 1
-
+          cd ~
+          git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
+          cd OSX-KVM
+          sudo rm boot-macOS-headless.sh
+          sudo wget -q -O /mnt/OSX-KVM/boot-macOS-headless.sh https://gitlab.com/MR.English2008/Mega_Gen/-/raw/main/boot-macOS-headless.sh
+          sudo chmod +x boot-macOS-headless.sh
+          sudo echo 1 | sudo tee -a /sys/module/kvm/parameters/ignore_msrs
+          sudo ./boot-macOS-headless.sh > /dev/null 2>&1 &
+          sleep 5
+          echo "Mac is running successfully"
+          
       - name: Expose VNC Port (5900) with Tunnel
         if: ${{ github.event.inputs.connection_method == 'ngrok' || github.event.inputs.connection_method == 'bore' }}
         run: |
