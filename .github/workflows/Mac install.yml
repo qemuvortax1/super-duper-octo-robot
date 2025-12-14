@@ -57,7 +57,7 @@ jobs:
           cd ~
           git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
           cd OSX-KVM
-          ./fetch-macOS-v2.py <<< "6" > /dev/null 2>&1
+          ./fetch-macOS-v2.py <<< "7" > /dev/null 2>&1
           dmg2img -i BaseSystem.dmg BaseSystem.img
           sudo qemu-img create -f qcow2 /mnt/mac.qcow2 128G > /dev/null 2>&1
           sed -i '63s#.*#  -drive id=MacHDD,if=none,file="/mnt/mac.qcow2",format=qcow2#' boot-macOS-headless.sh
