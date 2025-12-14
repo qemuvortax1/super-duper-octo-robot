@@ -220,7 +220,7 @@ jobs:
           
           declare -A QCOW2_URLS
           QCOW2_URLS["bazite"]="https://dummy.link/bazite.7z"
-          QCOW2_URLS["bliss"]="https://www.mediafire.com/file/2zuxhk4dtqa735l/bliss.7z/"
+          QCOW2_URLS["bliss"]="https://www.mediafire.com/file/oafcbqki4f04pka/bliss.7z"
           QCOW2_URLS["cutefish"]="https://www.mediafire.com/file/cskqtp25wya8p4e/cutefish.7z"
           QCOW2_URLS["debian"]="https://www.mediafire.com/file/4x02re7l2ge3a6h/debian.7z"
           QCOW2_URLS["deepin"]="https://www.mediafire.com/file/ozwa2vyxt4hz6wu/dipeen.7z/"
