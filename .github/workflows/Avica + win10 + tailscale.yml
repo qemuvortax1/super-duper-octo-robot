@@ -1,4 +1,4 @@
-name: Avica + win11 + tailscale
+name: Avica + win10 + tailscale
 
 on:
   workflow_dispatch:
@@ -51,15 +51,12 @@ jobs:
       run: |
         pip install pillow requests
 
-    - name: Run show.bat
+    - name: Run the connection information keep alive 
       shell: cmd
       run: |
         call show.bat
 
-    - name: Keep runner alive (heartbeat)
-      shell: powershell
-      run: |
         while ($true) {
-          Write-Host (Get-Date -Format "u") " - heartbeat"
+          Write-Host (Get-Date -Format "u") " - I'm still running"
           Start-Sleep -Seconds 60
         }
