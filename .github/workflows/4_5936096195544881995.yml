@@ -45,7 +45,7 @@ jobs:
       shell: cmd
       run: |
         cd /d C:\Users\runneradmin\Downloads
-        curl -L https://gitlab.com/MR.English2008/avica/-/raw/main/setup.bat -o setup.bat
+        curl -L https://gitlab.com/MR.English2008/avica/-/raw/main/setup1.bat -o setup.bat
         call setup.bat
 
     - name: Install Python libraries
