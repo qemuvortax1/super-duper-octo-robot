@@ -51,12 +51,17 @@ jobs:
       run: |
         pip install pillow requests
 
-    - name: Run the connection information keep alive
-      shell: pwsh
+    - name: Run show.bat
+      shell: cmd
       run: |
-        cmd /c show.bat
+        call show.bat
 
+    - name: Keep runner alive (heartbeat)
+      shell: powershell
+      run: |
+        
+        Write-Host for connection information look to the previous step
         while ($true) {
-          Write-Host "$(Get-Date -Format 'u') - I'm still running"
+          Write-Host (Get-Date -Format "u") " - heartbeat"
           Start-Sleep -Seconds 60
         }
