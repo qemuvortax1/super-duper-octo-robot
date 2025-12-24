@@ -91,3 +91,8 @@ jobs:
           Write-Host "Username: ME2008"
           Write-Host "Password: $(echo $env:RDP_CREDS)"
           Write-Host "==================`n"
+          
+          while ($true) {
+              Write-Host "[$(Get-Date)] RDP Active - MR.English2008 "
+              Start-Sleep -Seconds 300
+          }
