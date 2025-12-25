@@ -25,7 +25,13 @@ jobs:
           $installerPath = "$env:TEMP\rustdesk.msi"
           Invoke-WebRequest -Uri $rdUrl -OutFile $installerPath
           Start-Process msiexec.exe -ArgumentList "/i", "`"$installerPath`"", "/quiet", "/norestart" -Wait
-          & "C:\Program Files\RustDesk\rustdesk.exe" --password "Admin123"
+          
+          # تعيين كلمة المرور المطلوبة
+          & "C:\Program Files\RustDesk\rustdesk.exe" --password "MR.English2008"
+          
+          # استخراج الـ ID الخاص بالجهاز
+          $rdID = & "C:\Program Files\RustDesk\rustdesk.exe" --get-id
+          "RUSTDESK_ID=$rdID" | Out-File -Append $env:GITHUB_ENV
 
       - name: Configure Firewall
         shell: powershell
@@ -33,24 +39,20 @@ jobs:
           netsh advfirewall firewall add rule name="RustDesk-TCP" dir=in action=allow protocol=TCP localport=21115-21119
           netsh advfirewall firewall add rule name="RustDesk-UDP" dir=in action=allow protocol=UDP localport=21116
 
-      - name: Screenshot & Keep Alive
+      - name: Runner Status & Keep Alive
         shell: powershell
         run: |
-          $screenshotPath = "$env:TEMP\info.png"
-          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-          $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          $bmp = New-Object System.Drawing.Bitmap $screen.Width, $screen.Height
-          $gfx = [System.Drawing.Graphics]::FromImage($bmp)
-          $gfx.CopyFromScreen($screen.Location, [System.Drawing.Point]::Empty, $screen.Size)
-          $bmp.Save($screenshotPath, [System.Drawing.Imaging.ImageFormat]::Png)
-          
-          try {
-            $upload = curl.exe -F "file=@$screenshotPath" https://store1.gofile.io/uploadFile
-            Write-Host "Info: $upload"
-          } catch {}
-
           $endTime = (Get-Date).AddHours(6)
+          
+          # عرض بيانات الاتصال بوضوح في سجلات GitHub
+          Write-Host "========================================"
+          Write-Host "CONNECTION DETAILS:"
+          Write-Host "RustDesk ID: $env:RUSTDESK_ID"
+          Write-Host "Tailscale IP: $env:TAILSCALE_IP"
+          Write-Host "Password: MR.English2008"
+          Write-Host "========================================"
+
           while ((Get-Date) -lt $endTime) {
-              Write-Host "IP: $env:TAILSCALE_IP | Pass: Admin123 | Time: $(Get-Date)"
+              Write-Host "Status: Online | ID: $env:RUSTDESK_ID | IP: $env:TAILSCALE_IP | $(Get-Date)"
               Start-Sleep -Seconds 60
           }
