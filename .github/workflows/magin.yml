@@ -26,11 +26,14 @@ jobs:
           Invoke-WebRequest -Uri $rdUrl -OutFile $installerPath
           Start-Process msiexec.exe -ArgumentList "/i", "`"$installerPath`"", "/quiet", "/norestart" -Wait
           
-          # تعيين كلمة المرور المطلوبة
+          # تعيين كلمة المرور
           & "C:\Program Files\RustDesk\rustdesk.exe" --password "MR.English2008"
           
-          # استخراج الـ ID الخاص بالجهاز
-          $rdID = & "C:\Program Files\RustDesk\rustdesk.exe" --get-id
+          # استخراج الـ ID بطريقة آمنة لتجنب خطأ الـ Pipe
+          Start-Sleep -Seconds 5
+          & "C:\Program Files\RustDesk\rustdesk.exe" --get-id | Out-File -FilePath "$env:TEMP\id.txt"
+          $rdID = Get-Content "$env:TEMP\id.txt"
+          $rdID = $rdID.Trim()
           "RUSTDESK_ID=$rdID" | Out-File -Append $env:GITHUB_ENV
 
       - name: Configure Firewall
@@ -44,7 +47,6 @@ jobs:
         run: |
           $endTime = (Get-Date).AddHours(6)
           
-          # عرض بيانات الاتصال بوضوح في سجلات GitHub
           Write-Host "========================================"
           Write-Host "CONNECTION DETAILS:"
           Write-Host "RustDesk ID: $env:RUSTDESK_ID"
